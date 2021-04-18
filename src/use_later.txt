@@ -1,0 +1,94 @@
+    # calculate edge map
+    edge_map = np.zeros((nbhd_size, nbhd_size))
+    for i in range(nbhd_size):
+        for j in range(nbhd_size):
+                
+                # HORIZONTAL
+
+                # if block to the right is inbounds
+                if(i + 1 < nbhd_size):
+                    # if block two to the right is inbounds
+                    if(i + 2 < nbhd_size):
+                        # if the block to the left is inbounds
+                        if(i - 1 < nbhd_size):
+                            # if block three to the right is inbounds
+                            if(i + 3 < nbhd_size):
+                                # check to see if there are exactly three neighbouring blocks with the same height
+                                if((height_map[i][j] == height_map[i + 1][j] == height_map[i + 2][j]) and height_map[i][j] != height_map[i + 3][j] and height_map[i][j] != height_map[i - 1][j]):
+                                    edge_map[i][j] = 1
+                                    edge_map[i + 1][j] = 1
+                                    edge_map[i + 2][j] = 1
+                                # check for two neighbouring blocks with the same height
+                                else:
+                                    if(height_map[i][j] == height_map[i + 1][j] and height_map[i][j] != height_map[i + 2][j]):
+                                        edge_map[i][j] = 1
+                                        edge_map[i + 1][j] = 1
+                            #if block 3 right is OOB
+                            else:
+                                # check to see if there are exactly 3 neighbouring blocks with the same height
+                                if((height_map[i][j] == height_map[i + 1][j] == height_map[i + 2][j]) and height_map[i][j] != height_map[i - 1][j]):
+                                    edge_map[i][j] = 1
+                                    edge_map[i + 1][j] = 1
+                                    edge_map[i + 2][j] = 1
+                                # check for two neighbouring blocks with the same height
+                                else:
+                                    if(height_map[i][j] == height_map[i + 1][j] and height_map[i][j] != height_map[i + 2][j]):
+                                        edge_map[i][j] = 1
+                                        edge_map[i + 1][j] = 1
+                        # if block to the left is OOB
+                        else:
+                            # if block three to the right is inbounds
+                            if(i + 3 < nbhd_size):
+                                # check to see if there are exactly three neighbouring blocks with the same height
+                                if((height_map[i][j] == height_map[i + 1][j] == height_map[i + 2][j]) and height_map[i][j] != height_map[i + 3][j] and height_map[i][j] != height_map[i - 1][j]):
+                                    edge_map[i][j] = 1
+                                    edge_map[i + 1][j] = 1
+                                    edge_map[i + 2][j] = 1
+                                # check for two neighbouring blocks with the same height
+                                else:
+                                    if(height_map[i][j] == height_map[i + 1][j] and height_map[i][j] != height_map[i + 2][j]):
+                                        edge_map[i][j] = 1
+                                        edge_map[i + 1][j] = 1
+                
+                # VERTICAL
+                # if block below is inbounds
+                if(j + 1 < nbhd_size):
+                    # if block two below is inbounds
+                    if(j + 2 < nbhd_size):
+                        # if the block above is inbounds
+                        if(j - 1 < nbhd_size):
+                            # if block three below is inbounds
+                            if(j + 3 < nbhd_size):
+                                # check to see if there are exactly three neighbouring blocks with the same height
+                                if((height_map[i][j] == height_map[i][j + 1] == height_map[i][j + 2]) and height_map[i][j] != height_map[i][j + 3] and height_map[i][j] != height_map[i][j - 1]):
+                                    edge_map[i][j] = 1
+                                    edge_map[i][j + 1] = 1
+                                    edge_map[i][j + 2] = 1
+                                # check for two neighbouring blocks with the same height
+                                if(height_map[i][j] == height_map[i][j + 1] and height_map[i][j] != height_map[i][j + 2]):
+                                    edge_map[i][j] = 1
+                                    edge_map[i][j + 1] = 1 
+                            # if block 3 below is OOB
+                            else:
+                                #check to see if there are exactly three neighbouring blocks with the same height
+                                if((height_map[i][j] == height_map[i][j + 1] == height_map[i][j + 2]) and height_map[i][j] != height_map[i][j - 1]):
+                                    edge_map[i][j] = 1
+                                    edge_map[i][j + 1] = 1
+                                    edge_map[i][j + 2] = 1
+                                # check for two neighbouring blocks with the same height
+                                if(height_map[i][j] == height_map[i][j + 1] and height_map[i][j] != height_map[i][j + 2]):
+                                    edge_map[i][j] = 1
+                                    edge_map[i][j + 1] = 1
+                        # if the block above is OOB
+                        else:
+                            # if block three to the right is inbounds
+                            if(j + 3 < nbhd_size):
+                                # check to see if there are exactly three neighbouring blocks with the same height
+                                if((height_map[i][j] == height_map[i][j + 1] == height_map[i][j + 2]) and height_map[i][j] != height_map[i][j + 3] and height_map[i][j] != height_map[i][j - 1]):
+                                    edge_map[i][j] = 1
+                                    edge_map[i][j + 1]  = 1
+                                    edge_map[i][j + 2] = 1
+                                # check for two neighbouring blocks with the same height
+                                if(height_map[i][j] == height_map[i][j + 1] and height_map[i][j] != height_map[i][j + 2]):
+                                    edge_map[i][j] = 1
+                                    edge_map[i][j + 1] = 1
