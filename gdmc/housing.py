@@ -144,9 +144,10 @@ def getSettlingArea(nbhd_size, build_area):
 #######################################################################
 
 # Plotting Dimensions
-LARGE = (16, 16)
-SMALL = (10, 10)
+LARGE = (16, 16) # house
+SMALL = (10, 10) # house
 AREA = 256 # TODO: adjust to make dynamic with buildarea
+CITY_CENTER = (25, 25)
 
 # We want housing to occupy a set percentage of the village area
 #   Small = 4%
@@ -169,6 +170,7 @@ plot_map = {
     "SMALL": np.full((AREA-SMALL[0], AREA-SMALL[1]), 10000.0, dtype=np.half)
 }
 
+center_map = np.full((AREA-CITY_CENTER[0], AREA-CITY_CENTER[1]), 100000.0, dtype=np.half)
 
 def housingFitness(origin, size):
     """Function for determining the fitness of a plot for a housing settlement.
@@ -198,7 +200,13 @@ def housingFitness(origin, size):
         fitness = len(height_counts) + (block_counts['minecraft:water']*3.5)
     else:
         fitness = len(height_counts)
+    
     return fitness
+
+# finding the best place to place the town center
+for x in range(area[0], area[2] - CITY_CENTER[0], math.floor(CITY_CENTER[0] / 2)):
+    for z in range(area[1], area[3] - CITY_CENTER[1], math.floor(CITY_CENTER[1] / 2)):
+        center_map[x][z] = housingFitness((x,z), CITY_CENTER[0])
 
 # finding small housing plot areas on a set overlap
 # overlap currently => 50%
@@ -248,6 +256,15 @@ def rectanglesOverlap(r1, r2):
     else:
         return True
 
+# plotting the best town center location
+center_location = np.unravel_index(center_map.argmin(), center_map.shape)
+for i in range(CITY_CENTER[0]):
+    for j in range(CITY_CENTER[1]):
+        y = heightAt(center_location[0] + i, center_location[1] + j)
+        setBlock(center_location[0] + i, y - 1, center_location[1] + j, "warped_stem")
+        for y_i in range(25):
+            setBlock(center_location[0] + i, y + y_i, center_location[1] + j, "air")
+
 # creating a pool of potential plots for the small house
 small_pool_size = num_small * 5 # TODO: fix magic number maybe?????
 small_pool = get_indices_of_k_smallest(plot_map["SMALL"], small_pool_size)
@@ -279,9 +296,10 @@ while len(small_selected) < num_small:
     else:
         small_selected.append(small_pool[rand_idx])
 
+print(small_selected)
+
 # build the small house plots that we have selected
 for sm_house in small_selected:
-    y = heightAt(sm_house[0], sm_house[1])
     for i in range(SMALL[0]):
         for j in range(SMALL[1]):
             y = heightAt(sm_house[0] + i, sm_house[1] + j)
