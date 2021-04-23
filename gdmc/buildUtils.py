@@ -13,7 +13,10 @@ class Builder:
     def getHeightAt(self, x, z):
         x_fix = x-self._x
         z_fix = z-self._z
-        return self._height_map[x_fix , z_fix]
+        if(x_fix < self._size and z_fix < self._size):
+            return self._height_map[x_fix , z_fix]
+        else:
+            return None
 
     def setBlockAt(self, x, y_incr, z, block):
         y = y_incr + self.getHeightAt(x,z)
@@ -76,6 +79,46 @@ class Builder:
             x = self._x + self._size - 1
             self.setBlockAt(x, 0, z, "cobblestone")
             self.setBlockAt(x, 1, z, "oak_fence")
+    
+    def _findEdges(self, x, z):
+        hEdges = []
+        if(self.getHeightAt(x, z) != self.getHeightAt(x - 1, z)):
+            hEdges.append([x, z])
+            if(self.getHeightAt(x, z) == self.getHeightAt(x + 1, z)):
+                hEdges.append([x + 1, z])
+                if(self.getHeightAt(x, z) == self.getHeightAt(x + 2, z)):
+                    hEdges.append([x + 2, z])
+                    if(self.getHeightAt(x, z) == self.getHeightAt(x + 3, z)):
+                        hEdges = []
+        vEdges = []
+        if(self.getHeightAt(x, z) != self.getHeightAt(x, z - 1)):
+            vEdges.append([x, z])
+            if(self.getHeightAt(x, z) == self.getHeightAt(x, z + 1)):
+                vEdges.append([x, z + 1])
+                if(self.getHeightAt(x, z) == self.getHeightAt(x, z + 2)):
+                    vEdges.append([x, z + 2])
+                    if(self.getHeightAt(x, z) == self.getHeightAt(x, z + 3)):
+                        vEdges = []
+        return hEdges + vEdges
+
+    def flattenArea(self):
+        edgeMap = np.zeros((self._size, self._size))
+        for i in range(self._x, self._x + self._size):
+            for j in range(self._z, self._z + self._size):
+                edges = self._findEdges(i, j)
+                for edge in edges:
+                    edgeMap[edge[0]][edge[1]] = 1
+        for i in range(self._size):
+            for j in range(self._size):
+                if(edgeMap[i][j] == 1):
+                    x = i + self._x
+                    z = j + self._z
+                    neighbour = self.getBlockAt(x, 0, z)
+                    if(self.getHeightAt(x, z) < self.getHeightAt(x - 1, z)):
+                        self.setBlockAt(x, 0, z, neighbour)
+                    else:
+                        interfaceUtils.setBlock(x, self.getHeightAt(x - 1, z), z, neighbour)
+
 
 class BuildMap:
     def __init__(self, size, origin):

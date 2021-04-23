@@ -23,21 +23,15 @@ BUILDER         = buildUtils.Builder(HEIGHT_MAP, AREA.get(), USE_BATCHING)
 
 perimeter_area  = (AREA.x-1, AREA.z-1, AREA.size + 2, AREA.size + 2)
 perimeter_h_map = mapUtils.calcGoodHeightmap(WorldSlice(perimeter_area))
-perimeter_builder = buildUtils.Builder(perimeter_h_map, perimeter_area, USE_BATCHING)
-perimeter_builder.generatePlotFence()
+
+area_builder = buildUtils.Builder(perimeter_h_map, perimeter_area, USE_BATCHING)
+area_builder.generatePlotFence()
 
 ##################################################################
 ########################## TERRAFORMING ##########################
 ##################################################################
 
-
-
-
-
-
-
-
-
+area_builder.flattenArea()
 
 # Set heightmap of the updated terrain
 
@@ -56,12 +50,35 @@ start_timer = time.process_time()
 print("Starting town square generation")
 town_square_size = 25
 town_square_pool_size = 13
-town_square_f_map = generation.getFitnessMap(BUILD_MAP, town_square_size, 0.2, BUILDER, structures.townCentreFitness)
+town_square_f_map = generation.getFitnessMap(BUILD_MAP, town_square_size, 1, BUILDER, structures.townCentreFitness)
 town_centre_plots = generation.get_indices_of_k_smallest(town_square_f_map, town_square_pool_size)
-town_centre = structures.Structure(town_centre_plots[random.randint(0, town_square_pool_size-1)], town_square_size, "N")
+town_centre = structures.Structure(town_centre_plots[0], town_square_size)
 town_centre.build(BUILDER)
+BUILD_MAP.addStructure(town_centre_plots[0][0], town_centre_plots[0][1], town_square_size)
 print(time.process_time() - start_timer)
 print("Ending town square generation")
+
+##################################################################
+######################## HOUSING #################################
+##################################################################
+
+start_timer = time.process_time()
+print("Starting housing generation")
+
+house_plot_size = 11
+housing_pool_size = 13
+housing_f_map = generation.getFitnessMap(BUILD_MAP, house_plot_size, 1.2, BUILDER, structures.housingFitness)
+housing_plots = generation.get_indices_of_k_smallest(housing_f_map, housing_pool_size)
+i = 0
+placed = 0
+while placed < 5:
+    if(BUILD_MAP.plotPermit(housing_plots[i][0], housing_plots[i][1], housing_pool_size)):
+        house = structures.House(housing_plots[i], house_plot_size, BUILDER)
+        BUILD_MAP.addStructure(housing_plots[i][0], housing_plots[i][1], house_plot_size)
+        placed += 1
+    i += 1
+
+print(time.process_time() - start_timer)
 
 # Order of generation and settlement
 
