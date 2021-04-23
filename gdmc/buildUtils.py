@@ -143,7 +143,7 @@ class BuildMap:
     
     def plotPermit(self, x, z, size):
         idx_x = x - self.origin_x
-        idx_z = x - self.origin_z
+        idx_z = z - self.origin_z
         temp_plot = self.area_map[idx_x:idx_x+size, idx_z:idx_z+size]
         return not(np.any(np.in1d([1,2], temp_plot)))
 

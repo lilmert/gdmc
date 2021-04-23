@@ -18,22 +18,26 @@ BUILD_MAP       = buildUtils.BuildMap(MAP_SIZE, (AREA.x, AREA.z))
 BUILDER         = buildUtils.Builder(HEIGHT_MAP, AREA.get(), USE_BATCHING)
 
 ##################################################################
-##################### PLOT FENCE GENERATION  #####################
+########################### WORLD SETUP  #########################
 ##################################################################
 
+# plot fence
 perimeter_area  = (AREA.x-1, AREA.z-1, AREA.size + 2, AREA.size + 2)
 perimeter_h_map = mapUtils.calcGoodHeightmap(WorldSlice(perimeter_area))
-
 area_builder = buildUtils.Builder(perimeter_h_map, perimeter_area, USE_BATCHING)
 area_builder.generatePlotFence()
 
-##################################################################
-########################## TERRAFORMING ##########################
-##################################################################
+# terraforming
+start_timer = time.process_time()
+print("Starting Terraforming")
+# BUILDER.flattenArea()
+print(time.process_time() - start_timer)
+print("Done Terraforming")
 
-area_builder.flattenArea()
-
-# Set heightmap of the updated terrain
+#update globals to reflect terraforming
+# WORLD_SLICE     = WorldSlice(AREA.get())
+# HEIGHT_MAP      = mapUtils.calcGoodHeightmap(WORLD_SLICE)
+# BUILDER         = buildUtils.Builder(HEIGHT_MAP, AREA.get(), USE_BATCHING)
 
 # Set blockmap of the terrain for the builder once the terraforming is done
 start_timer = time.process_time()
@@ -49,12 +53,12 @@ print("Done Block Map Processing")
 start_timer = time.process_time()
 print("Starting town square generation")
 town_square_size = 25
-town_square_pool_size = 13
+town_square_pool_size = 1
 town_square_f_map = generation.getFitnessMap(BUILD_MAP, town_square_size, 1, BUILDER, structures.townCentreFitness)
 town_centre_plots = generation.get_indices_of_k_smallest(town_square_f_map, town_square_pool_size)
-town_centre = structures.Structure(town_centre_plots[0], town_square_size)
-town_centre.build(BUILDER)
-BUILD_MAP.addStructure(town_centre_plots[0][0], town_centre_plots[0][1], town_square_size)
+town_centre = structures.TownCentre(town_centre_plots[0], town_square_size, BUILDER)
+BUILD_MAP.addStructure(town_centre._x, town_centre._z, town_square_size)
+town_centre.buildPaths(BUILD_MAP)
 print(time.process_time() - start_timer)
 print("Ending town square generation")
 
