@@ -178,12 +178,11 @@ class TownCentre(Structure):
 
 class House(Structure):
     def __init__(self, origin, size, builder, build_map):
-        super().__init__(origin, size)
+        super().__init__(origin, size, builder)
    #     self._floors = self._calcFloors() 
         self._houseSize = size - 4
         self._houseX = self._x + 2
         self._houseZ = self._z + 2
-        self._builder = builder
         self._build_map = build_map
         self._color = self._setColor()
         self._direction = self._setDirection()
