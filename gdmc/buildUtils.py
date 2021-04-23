@@ -10,6 +10,15 @@ class Builder:
         self._batching = batching
         self._block_map = np.empty((area[2], area[2]), dtype="object")
 
+    def getX(self):
+        return self._x
+
+    def getZ(self):
+        return self._z
+    
+    def getSize(self):
+        return self._size
+
     def getHeightAt(self, x, z):
         x_fix = x-self._x
         z_fix = z-self._z

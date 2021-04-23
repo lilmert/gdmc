@@ -50,7 +50,7 @@ start_timer = time.process_time()
 print("Starting town square generation")
 town_square_size = 25
 town_square_pool_size = 13
-town_square_f_map = generation.getFitnessMap(BUILD_MAP, town_square_size, 1, BUILDER, structures.townCentreFitness)
+town_square_f_map = generation.getFitnessMap(BUILD_MAP, town_square_size, 3, BUILDER, structures.townCentreFitness)
 town_centre_plots = generation.get_indices_of_k_smallest(town_square_f_map, town_square_pool_size)
 town_centre = structures.Structure(town_centre_plots[0], town_square_size)
 town_centre.build(BUILDER)
@@ -73,7 +73,7 @@ i = 0
 placed = 0
 while placed < 5:
     if(BUILD_MAP.plotPermit(housing_plots[i][0], housing_plots[i][1], housing_pool_size)):
-        house = structures.House(housing_plots[i], house_plot_size, BUILDER)
+        house = structures.House(housing_plots[i], house_plot_size, BUILDER, BUILD_MAP)
         BUILD_MAP.addStructure(housing_plots[i][0], housing_plots[i][1], house_plot_size)
         placed += 1
     i += 1
