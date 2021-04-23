@@ -23,21 +23,15 @@ BUILDER         = buildUtils.Builder(HEIGHT_MAP, AREA.get(), USE_BATCHING)
 
 perimeter_area  = (AREA.x-1, AREA.z-1, AREA.size + 2, AREA.size + 2)
 perimeter_h_map = mapUtils.calcGoodHeightmap(WorldSlice(perimeter_area))
-perimeter_builder = buildUtils.Builder(perimeter_h_map, perimeter_area, USE_BATCHING)
-perimeter_builder.generatePlotFence()
+
+area_builder = buildUtils.Builder(perimeter_h_map, perimeter_area, USE_BATCHING)
+area_builder.generatePlotFence()
 
 ##################################################################
 ########################## TERRAFORMING ##########################
 ##################################################################
 
-
-
-
-
-
-
-
-
+area_builder.flattenArea()
 
 # Set heightmap of the updated terrain
 
@@ -62,6 +56,24 @@ town_centre = structures.Structure(town_centre_plots[random.randint(0, town_squa
 town_centre.build(BUILDER)
 print(time.process_time() - start_timer)
 print("Ending town square generation")
+
+##################################################################
+######################## HOUSING #################################
+##################################################################
+
+start_timer = time.process_time()
+print("Starting housing generation")
+
+house_plot_size = 13
+housing_pool_size = 13
+housing_f_map = generation.getFitnessMap(BUILD_MAP, house_plot_size, 1.2, BUILDER, structures.housingFitness)
+housing_plots = generation.get_indices_of_k_smallest(housing_f_map, housing_pool_size)
+house = structures.House(housing_plots[0], house_plot_size, "N", BUILDER)
+house = structures.House(housing_plots[1], house_plot_size, "N", BUILDER)
+house = structures.House(housing_plots[2], house_plot_size, "N", BUILDER)
+house = structures.House(housing_plots[3], house_plot_size, "N", BUILDER)
+house = structures.House(housing_plots[4], house_plot_size, "N", BUILDER)
+print(time.process_time() - start_timer)
 
 # Order of generation and settlement
 
