@@ -50,10 +50,11 @@ start_timer = time.process_time()
 print("Starting town square generation")
 town_square_size = 25
 town_square_pool_size = 13
-town_square_f_map = generation.getFitnessMap(BUILD_MAP, town_square_size, 0.2, BUILDER, structures.townCentreFitness)
+town_square_f_map = generation.getFitnessMap(BUILD_MAP, town_square_size, 1, BUILDER, structures.townCentreFitness)
 town_centre_plots = generation.get_indices_of_k_smallest(town_square_f_map, town_square_pool_size)
-town_centre = structures.Structure(town_centre_plots[random.randint(0, town_square_pool_size-1)], town_square_size, "N")
+town_centre = structures.Structure(town_centre_plots[0], town_square_size)
 town_centre.build(BUILDER)
+BUILD_MAP.addStructure(town_centre_plots[0][0], town_centre_plots[0][1], town_square_size)
 print(time.process_time() - start_timer)
 print("Ending town square generation")
 
@@ -64,15 +65,19 @@ print("Ending town square generation")
 start_timer = time.process_time()
 print("Starting housing generation")
 
-house_plot_size = 13
+house_plot_size = 11
 housing_pool_size = 13
 housing_f_map = generation.getFitnessMap(BUILD_MAP, house_plot_size, 1.2, BUILDER, structures.housingFitness)
 housing_plots = generation.get_indices_of_k_smallest(housing_f_map, housing_pool_size)
-house = structures.House(housing_plots[0], house_plot_size, "N", BUILDER)
-house = structures.House(housing_plots[1], house_plot_size, "N", BUILDER)
-house = structures.House(housing_plots[2], house_plot_size, "N", BUILDER)
-house = structures.House(housing_plots[3], house_plot_size, "N", BUILDER)
-house = structures.House(housing_plots[4], house_plot_size, "N", BUILDER)
+i = 0
+placed = 0
+while placed < 5:
+    if(BUILD_MAP.plotPermit(housing_plots[i][0], housing_plots[i][1], housing_pool_size)):
+        house = structures.House(housing_plots[i], house_plot_size, BUILDER)
+        BUILD_MAP.addStructure(housing_plots[i][0], housing_plots[i][1], house_plot_size)
+        placed += 1
+    i += 1
+
 print(time.process_time() - start_timer)
 
 # Order of generation and settlement
