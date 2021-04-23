@@ -77,8 +77,8 @@ i = 0
 placed = 0
 while placed < 5:
     if(BUILD_MAP.plotPermit(housing_plots[i][0], housing_plots[i][1], housing_pool_size)):
-        house = structures.House(housing_plots[i], house_plot_size, BUILDER)
         BUILD_MAP.addStructure(housing_plots[i][0], housing_plots[i][1], house_plot_size)
+        house = structures.House(housing_plots[i], house_plot_size, BUILDER, BUILD_MAP)
         placed += 1
     i += 1
 
