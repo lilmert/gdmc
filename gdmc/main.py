@@ -5,11 +5,22 @@ import generation
 import structures
 import interfaceUtils
 import random
+import numpy as np
+import pathfinding
+import sys
 from worldLoader import WorldSlice
 
 ######################## GLOBAL VARIABLES ########################
 
 AREA            = buildUtils.BuildArea(buildUtils.getBuildArea())
+
+if len(sys.argv) < 2:
+    pass
+elif len(sys.argv) == 4:
+    AREA.x = int(sys.argv[1])
+    AREA.z = int(sys.argv[2])
+    AREA.size = int(sys.argv[3])
+
 MAP_SIZE        = AREA.size
 WORLD_SLICE     = WorldSlice(AREA.get())
 HEIGHT_MAP      = mapUtils.calcGoodHeightmap(WORLD_SLICE)
@@ -30,14 +41,14 @@ area_builder.generatePlotFence()
 # terraforming
 start_timer = time.process_time()
 print("Starting Terraforming")
-# BUILDER.flattenArea()
+BUILDER.flattenArea()
 print(time.process_time() - start_timer)
 print("Done Terraforming")
 
 #update globals to reflect terraforming
-# WORLD_SLICE     = WorldSlice(AREA.get())
-# HEIGHT_MAP      = mapUtils.calcGoodHeightmap(WORLD_SLICE)
-# BUILDER         = buildUtils.Builder(HEIGHT_MAP, AREA.get(), USE_BATCHING)
+WORLD_SLICE     = WorldSlice(AREA.get())
+HEIGHT_MAP      = mapUtils.calcGoodHeightmap(WORLD_SLICE)
+BUILDER         = buildUtils.Builder(HEIGHT_MAP, AREA.get(), USE_BATCHING)
 
 # Set blockmap of the terrain for the builder once the terraforming is done
 start_timer = time.process_time()
@@ -84,6 +95,12 @@ while placed < 5:
 
 print(time.process_time() - start_timer)
 
+indices = np.argwhere(BUILD_MAP.area_map > 2)
+for idx in indices:
+    BUILDER.setBlockAt(idx[0], -1, idx[1], "iron_block")
+
+pathfinding.createPaths(BUILD_MAP, BUILDER)
+
 # Order of generation and settlement
 
 # * 1. Terraform the land (regenerate heightmap after)
@@ -92,7 +109,6 @@ print(time.process_time() - start_timer)
 # * 4. Establish & Generate Housing across the land
 # * 5. Use pathfinding to connect housing to roads 
 # * 6. Add any decorations we can / want
-
 
 ##################################################################
 
