@@ -79,6 +79,7 @@ class TownCentre(Structure):
 
         # clear all blocks above the structure
         self.clear()
+        self._buildFountain()
     
     def _findAverageHeight(self):
         total_height = 0
@@ -175,11 +176,69 @@ class TownCentre(Structure):
                             l_switch = not(l_switch)
                     z += 1
                     
+    def _buildFountain(self):
+        centerX = self._x + math.floor(0.5 * self._size)
+        centerZ = self._z + math.floor(0.5 * self._size)
+
+        for i in range(3):
+            if(i == 2):
+                interfaceUtils.setBlock(centerX + 3, self._base_level + 1 + i, centerZ + 3, 'stone_brick_slab')
+                interfaceUtils.setBlock(centerX + 3, self._base_level + 1 + i, centerZ - 3, 'stone_brick_slab')
+                interfaceUtils.setBlock(centerX - 3, self._base_level + 1 + i, centerZ + 3, 'stone_brick_slab')
+                interfaceUtils.setBlock(centerX - 3, self._base_level + 1 + i, centerZ - 3, 'stone_brick_slab')
+            else:
+                interfaceUtils.setBlock(centerX + 3, self._base_level + 1 + i, centerZ + 3, 'chiseled_stone_bricks')
+                interfaceUtils.setBlock(centerX + 3, self._base_level + 1 + i, centerZ - 3, 'chiseled_stone_bricks')
+                interfaceUtils.setBlock(centerX - 3, self._base_level + 1 + i, centerZ + 3, 'chiseled_stone_bricks')
+                interfaceUtils.setBlock(centerX - 3, self._base_level + 1 + i, centerZ - 3, 'chiseled_stone_bricks')
+        for i in range(5):
+            interfaceUtils.setBlock(centerX - 2 + i, self._base_level + 1, centerZ - 3, 'stone_brick_stairs[facing=south]')
+            interfaceUtils.setBlock(centerX - 2 + i, self._base_level + 1, centerZ + 3, 'stone_brick_stairs[facing=north]')
+            interfaceUtils.setBlock(centerX - 3, self._base_level + 1, centerZ - 2 + i, 'stone_brick_stairs[facing=east]')
+            interfaceUtils.setBlock(centerX + 3, self._base_level + 1, centerZ - 2 + i, 'stone_brick_stairs[facing=west]')
+        
+        interfaceUtils.setBlock(centerX, self._base_level + 1, centerZ - 1, 'chiseled_stone_bricks')
+        interfaceUtils.setBlock(centerX - 1, self._base_level + 1, centerZ, 'chiseled_stone_bricks')
+        interfaceUtils.setBlock(centerX, self._base_level + 1, centerZ + 1, 'chiseled_stone_bricks')
+        interfaceUtils.setBlock(centerX + 1, self._base_level + 1, centerZ, 'chiseled_stone_bricks')
+
+        interfaceUtils.setBlock(centerX, self._base_level + 2, centerZ - 1, 'stone_brick_stairs[facing=south]')
+        interfaceUtils.setBlock(centerX - 1, self._base_level + 2, centerZ, 'stone_brick_stairs[facing=north]')
+        interfaceUtils.setBlock(centerX, self._base_level + 2, centerZ + 1, 'stone_brick_stairs[facing=east]')
+        interfaceUtils.setBlock(centerX + 1, self._base_level + 2, centerZ, 'stone_brick_stairs[facing=west]')
+
+        interfaceUtils.setBlock(centerX, self._base_level + 6, centerZ - 1, 'chiseled_stone_bricks')
+        interfaceUtils.setBlock(centerX - 1, self._base_level + 6, centerZ, 'chiseled_stone_bricks')
+        interfaceUtils.setBlock(centerX, self._base_level + 6, centerZ + 1, 'chiseled_stone_bricks')
+        interfaceUtils.setBlock(centerX + 1, self._base_level + 6, centerZ, 'chiseled_stone_bricks')
+
+
+
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                interfaceUtils.setBlock(centerX + i, self._base_level + 7, centerZ + j, 'chiseled_stone_bricks')
+        for i in range(2):
+            interfaceUtils.setBlock(centerX, self._base_level + 7 + i, centerZ - 2, 'chiseled_stone_bricks')
+            interfaceUtils.setBlock(centerX - 2, self._base_level + 7 + i, centerZ, 'chiseled_stone_bricks')
+            interfaceUtils.setBlock(centerX, self._base_level + 7 + i, centerZ + 2, 'chiseled_stone_bricks')
+            interfaceUtils.setBlock(centerX + 2, self._base_level + 7 + i, centerZ, 'chiseled_stone_bricks')
+
+        interfaceUtils.setBlock(centerX, self._base_level + 9, centerZ - 2, 'stone_brick_stairs[facing=south]')
+        interfaceUtils.setBlock(centerX - 2, self._base_level + 9, centerZ, 'stone_brick_stairs[facing=east]')
+        interfaceUtils.setBlock(centerX, self._base_level + 9, centerZ + 2, 'stone_brick_stairs[facing=north]')
+        interfaceUtils.setBlock(centerX + 2, self._base_level + 9, centerZ, 'stone_brick_stairs[facing=west]')
+        
+        for i in range(10):
+            interfaceUtils.setBlock(centerX, self._base_level + i, centerZ, 'chiseled_stone_bricks')
+        interfaceUtils.setBlock(centerX, self._base_level + 10, centerZ, 'water')
+
+
+
+
 
 class House(Structure):
     def __init__(self, origin, size, builder, build_map):
         super().__init__(origin, size, builder)
-   #     self._floors = self._calcFloors() 
         self._houseSize = size - 4
         self._houseX = self._x + 2
         self._houseZ = self._z + 2
@@ -188,7 +247,8 @@ class House(Structure):
         self._direction = self._setDirection()
         self._first_floor_level = self._layFirstFloor()
         self._buildCorners()
-        self._buildFrontWall()
+        self._walls()
+        self._decorateInterior()
 
     def _setColor(self):
         rand = random.rand()
@@ -208,30 +268,14 @@ class House(Structure):
         if(abs(self._houseX - map_centerX) > abs(self._houseZ - map_centerZ)):
             if(self._houseX > map_centerX):
                 direction = 'W'
-                front_x = self._x
-                front_z = int(self._z + self._size * 0.5)
-                self._build_map.setBuildAt(front_x, front_z, 3)
             else:
                 direction = 'E'
-                front_x = self._x + self._size - 1
-                front_z = int(self._z + self._size * 0.5)
-                self._build_map.setBuildAt(front_x, front_z, 3)
         else:
             if(self._z > map_centerZ):
                 direction = 'S'
-                front_x = int(self._x + self._size * 0.5)
-                front_z = self._z + self._size - 1
-                self._build_map.setBuildAt(front_x, front_z, 3)
             else:
                 direction = 'N'
-                front_x = int(self._x + self._size * 0.5)
-                front_z = self._z
-                self._build_map.setBuildAt(front_x, front_z, 3)
         return direction
-    
-    #def _calcFloors(self):
-        #if(self._size >= 9):
-            #self._floors = 2
 
     def _layFirstFloor(self):
         average = 0
@@ -258,12 +302,111 @@ class House(Structure):
             interfaceUtils.setBlock(self._houseX + self._houseSize - 1, self._first_floor_level + i, self._houseZ, "dark_oak_log")
             interfaceUtils.setBlock(self._houseX, self._first_floor_level + i, self._houseZ + self._houseSize - 1, "dark_oak_log")
             interfaceUtils.setBlock(self._houseX + self._houseSize - 1, self._first_floor_level + i, self._houseZ + self._houseSize - 1, "dark_oak_log")
-            
-        
-    # lay  2nd floor function
-        # for every block in height = 3, inside the house perimeter (size + 1 to size - 1)
-            # set block type to dark oak slab on the upper side
-    # lay front wall function
+
+    def _walls(self):
+        self._buildFrontWall()
+        if(self._direction == 'S'):
+            self._xAxisWall(self._houseZ)
+            self._xAxisWall(self._houseZ + self._houseSize - 1)
+            self._zAxisWall(self._houseX)
+            self._zAxisRoof()
+        if(self._direction == 'N'):
+            self._xAxisWall(self._houseZ)
+            self._xAxisWall(self._houseZ + self._houseSize - 1)
+            self._zAxisWall(self._houseX + self._houseSize - 1)
+            self._zAxisRoof()
+        if(self._direction == 'W'):
+            self._zAxisWall(self._houseX)
+            self._zAxisWall(self._houseX + self._houseSize - 1)
+            self._xAxisWall(self._houseZ)
+            self._xAxisRoof()
+        if(self._direction == 'E'):
+            self._zAxisWall(self._houseX)
+            self._zAxisWall(self._houseX + self._houseSize - 1)
+            self._xAxisWall(self._houseZ + self._houseSize - 1)
+            self._xAxisRoof()
+
+    def _zAxisWall(self, x):
+        z1 = self._houseZ
+        for height in range(1, 5):
+            for i in range(1, 6):
+                if(height == 4):
+                    interfaceUtils.setBlock(x, self._first_floor_level + height, z1 + i, 'dark_oak_log')
+                    continue
+                if(height == 2 and (i == 2 or i == 4)):
+                    interfaceUtils.setBlock(x, self._first_floor_level + height, z1 + i, 'glass_pane')
+                else:
+                    interfaceUtils.setBlock(x, self._first_floor_level + height, z1 + i, self._color)
+
+    def _xAxisWall(self, z):
+        x1 = self._houseX
+        for height in range(1, 5):
+            for i in range(1, 6):
+                if(height == 4):
+                    interfaceUtils.setBlock(x1 + i, self._first_floor_level + height, z, 'dark_oak_log')
+                    continue
+                if(height == 2 and (i == 2 or i == 4)):
+                    interfaceUtils.setBlock(x1 + i, self._first_floor_level + height, z, 'glass_pane')
+                else:
+                    interfaceUtils.setBlock(x1 + i, self._first_floor_level + height, z, self._color)
+
+    def _xAxisRoof(self):
+        # creating peaks
+        for i in range(1, 6):
+            if(i != 2 and i != 4):
+                interfaceUtils.setBlock(self._houseX + i, self._first_floor_level + 5, self._houseZ, self._color)
+                interfaceUtils.setBlock(self._houseX + i, self._first_floor_level + 5, self._houseZ + self._houseSize - 1, self._color)
+            else:
+                interfaceUtils.setBlock(self._houseX + i, self._first_floor_level + 5, self._houseZ, 'dark_oak_log')
+                interfaceUtils.setBlock(self._houseX + i, self._first_floor_level + 5, self._houseZ + self._houseSize - 1, 'dark_oak_log')
+        interfaceUtils.setBlock(self._houseX + 2, self._first_floor_level + 6, self._houseZ, 'dark_oak_log')
+        interfaceUtils.setBlock(self._houseX + 2, self._first_floor_level + 6, self._houseZ + self._houseSize - 1, 'dark_oak_log')
+        interfaceUtils.setBlock(self._houseX + 3, self._first_floor_level + 6, self._houseZ, 'glass_pane')
+        interfaceUtils.setBlock(self._houseX + 3, self._first_floor_level + 6, self._houseZ + self._houseSize - 1, 'glass_pane')
+        interfaceUtils.setBlock(self._houseX + 4, self._first_floor_level + 6, self._houseZ, 'dark_oak_log')
+        interfaceUtils.setBlock(self._houseX + 4, self._first_floor_level + 6, self._houseZ + self._houseSize - 1, 'dark_oak_log')
+        interfaceUtils.setBlock(self._houseX + 3, self._first_floor_level + 7, self._houseZ, self._color)
+        interfaceUtils.setBlock(self._houseX + 3, self._first_floor_level + 7, self._houseZ + self._houseSize - 1, self._color)
+
+        # shingles
+        spacing = -1
+        for height in range(4, 9):
+            for j in range(self._houseSize):
+                if(height == 8):
+                    interfaceUtils.setBlock(self._houseX + spacing, self._first_floor_level + height, self._houseZ + j, 'dark_oak_slab')
+                    continue
+                interfaceUtils.setBlock(self._houseX + spacing, self._first_floor_level + height, self._houseZ + j, 'dark_oak_stairs[facing=east]')
+                interfaceUtils.setBlock(self._houseX + self._houseSize - 1 - spacing, self._first_floor_level + height, self._houseZ + j, 'dark_oak_stairs[facing=west]')
+            spacing += 1
+
+    def _zAxisRoof(self):
+        # creating peaks
+        for i in range(1, 6):
+            if(i != 2 and i != 4):
+                interfaceUtils.setBlock(self._houseX, self._first_floor_level + 5, self._houseZ + i, self._color)
+                interfaceUtils.setBlock(self._houseX + self._houseSize - 1, self._first_floor_level + 5, self._houseZ + i, self._color)
+            else:
+                interfaceUtils.setBlock(self._houseX, self._first_floor_level + 5, self._houseZ + i, 'dark_oak_log')
+                interfaceUtils.setBlock(self._houseX + self._houseSize - 1, self._first_floor_level + 5, self._houseZ + i, 'dark_oak_log')
+        interfaceUtils.setBlock(self._houseX, self._first_floor_level + 6, self._houseZ + 2, 'dark_oak_log')
+        interfaceUtils.setBlock(self._houseX + self._houseSize - 1, self._first_floor_level + 6, self._houseZ + 2, 'dark_oak_log')
+        interfaceUtils.setBlock(self._houseX, self._first_floor_level + 6, self._houseZ + 3, 'glass_pane')
+        interfaceUtils.setBlock(self._houseX + self._houseSize - 1, self._first_floor_level + 6, self._houseZ + 3, 'glass_pane')
+        interfaceUtils.setBlock(self._houseX, self._first_floor_level + 6, self._houseZ + 4, 'dark_oak_log')
+        interfaceUtils.setBlock(self._houseX + self._houseSize - 1, self._first_floor_level + 6, self._houseZ + 4, 'dark_oak_log')
+        interfaceUtils.setBlock(self._houseX, self._first_floor_level + 7, self._houseZ + 3, self._color)
+        interfaceUtils.setBlock(self._houseX + self._houseSize - 1, self._first_floor_level + 7, self._houseZ + 3, self._color)
+
+        # shingles
+        spacing = -1
+        for height in range(4, 9):
+            for j in range(self._houseSize):
+                if(height == 8):
+                    interfaceUtils.setBlock(self._houseX + j, self._first_floor_level + height, self._houseZ + spacing, 'dark_oak_slab')
+                    continue
+                interfaceUtils.setBlock(self._houseX + j, self._first_floor_level + height, self._houseZ + spacing, 'dark_oak_stairs[facing=south]')
+                interfaceUtils.setBlock(self._houseX + j, self._first_floor_level + height, self._houseZ + self._houseSize - 1 - spacing, 'dark_oak_stairs[facing=north]')
+            spacing += 1
 
     def _buildFrontWall(self):
         if(self._direction == 'N' or self._direction == 'S'):
@@ -296,7 +439,19 @@ class House(Structure):
             interfaceUtils.setBlock(x, self._first_floor_level + 2, z1 + 3, 'dark_oak_door[half=upper, facing=east]')
             interfaceUtils.setBlock(x, self._first_floor_level + 3, z1 + 3, self._color)
             interfaceUtils.setBlock(x, self._first_floor_level + 4, z1 + 3, 'dark_oak_log')
-            
+
+            # add stone doorstep and updating build map
+            for out in range(1, 3):
+                for i in range(3):
+                    if(self._direction == 'S'):
+                        interfaceUtils.setBlock(x + out, self._first_floor_level, z1 + 2 + i, 'stone_bricks')
+                        interfaceUtils.setBlock(x + out, self._first_floor_level + 1, z1 + 2 + i, 'air')            
+                        self._build_map.setBuildAt(x + 3, z1 + 3, 3)
+                    else:
+                        interfaceUtils.setBlock(x - out, self._first_floor_level, z1 + 2 + i, 'stone_bricks')
+                        interfaceUtils.setBlock(x - out, self._first_floor_level + 1, z1 + 2 + i, 'air')
+                        self._build_map.setBuildAt(x - 3, z1 + 3, 3)
+
         if(self._direction == 'E' or self._direction == 'W'):
             x1 = self._houseX
             x2 = self._houseX + self._houseSize - 1
@@ -327,16 +482,53 @@ class House(Structure):
             interfaceUtils.setBlock(x1 + 3, self._first_floor_level + 2, z, 'dark_oak_door[half=upper, facing=east]')
             interfaceUtils.setBlock(x1 + 3, self._first_floor_level + 3, z, self._color)
             interfaceUtils.setBlock(x1 + 3, self._first_floor_level + 4, z, 'dark_oak_log')
-        
+            
+            # add stone doorstep and updating build map
+            for out in range(1, 3):
+                for i in range(3):
+                    if(self._direction == 'W'):
+                        interfaceUtils.setBlock(x1 + 2 + i, self._first_floor_level, z + out, 'stone_bricks')
+                        interfaceUtils.setBlock(x1 + 2 + i, self._first_floor_level + 1, z + out, 'air')
+                        self._build_map.setBuildAt(x1 + 3, z + 3, 3)
+                    
+                    else:
+                        interfaceUtils.setBlock(x1 + 2 + i, self._first_floor_level, z - out, 'stone_bricks')
+                        interfaceUtils.setBlock(x1 + 2 + i, self._first_floor_level + 1, z - out, 'air')
+                        self._build_map.setBuildAt(x1 + 3, z - 3, 3)
 
+    def _decorateInterior(self):
+        rand = random.rand()
+        if(rand < 0.25):
+            bed = 'green_bed'
+        elif(rand < 0.5):
+            bed = 'brown_bed'
+        elif(rand < 0.75):
+            bed = 'yellow_bed'
+        else:
+            bed = 'blue_bed'
+        if(self._direction == 'N'):
+            interfaceUtils.setBlock(self._houseX + 5, self._first_floor_level + 1, self._houseZ + 3, bed + '[facing=east]')
+            interfaceUtils.setBlock(self._houseX + 6, self._first_floor_level + 1, self._houseZ + 3, bed + '[part=head, facing=east]')
+            
 
-    #    if(self._direction == 'E'):
-    #    if(self._direction == 'S'):
-    #    if(self._direction == 'N'):
-    # lay first wall function
+        elif(self._direction == 'S'):
+            interfaceUtils.setBlock(self._houseX + 2, self._first_floor_level + 1, self._houseZ + 3, bed + '[facing=west]')
+            interfaceUtils.setBlock(self._houseX + 1, self._first_floor_level + 1, self._houseZ + 3, bed + '[part=head, facing=west]')
+            interfaceUtils.setBlock(self._houseX + 2, self._first_floor_level + 1, self._houseZ + 1, 'chest[facing=south]')
+            interfaceUtils.setBlock(self._houseX + 1, self._first_floor_level + 1, self._houseZ + 1, 'chest[facing=south]')
+            interfaceUtils.setBlock(self._houseX + 5, self._first_floor_level + 1, self._houseZ + 5, 'crafting_table')
+            interfaceUtils.setBlock(self._houseX + 1, self._first_floor_level + 2, self._houseZ + 3, 'wall:torch[facing=east]')
+            interfaceUtils.setBlock(self._houseX + 3, self._first_floor_level + 1, self._houseZ + 5, 'furnace')
 
-    # lay second wall function
-
-    # build attic peak walls
-
-    # build roof
+        elif(self._direction == 'E'):
+            interfaceUtils.setBlock(self._houseX + 3, self._first_floor_level + 1, self._houseZ + 5, bed + '[facing=south]')
+            interfaceUtils.setBlock(self._houseX + 3, self._first_floor_level + 1, self._houseZ + 6, bed + '[part=head, facing=south]')
+        else:
+            interfaceUtils.setBlock(self._houseX + 3, self._first_floor_level + 1, self._houseZ + 2, bed)
+            interfaceUtils.setBlock(self._houseX + 3, self._first_floor_level + 1, self._houseZ + 1, bed + '[part=head]')
+            interfaceUtils.setBlock(self._houseX + 1, self._first_floor_level + 1, self._houseZ + 1, 'chest[facing=east]')
+            interfaceUtils.setBlock(self._houseX + 1, self._first_floor_level + 1, self._houseZ + 2, 'chest[facing=east]')
+            interfaceUtils.setBlock(self._houseX + 5, self._first_floor_level + 1, self._houseZ + 5, 'crafting_table')
+            interfaceUtils.setBlock(self._houseX + 3, self._first_floor_level + 2, self._houseZ + 1, 'wall:torch[facing=south]')
+            interfaceUtils.setBlock(self._houseX + 5, self._first_floor_level + 1, self._houseZ + 3, 'furnace[facing=west]')
+            
