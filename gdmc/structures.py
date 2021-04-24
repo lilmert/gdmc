@@ -246,6 +246,7 @@ class House(Structure):
         self._color = self._setColor()
         self._direction = self._setDirection()
         self._first_floor_level = self._layFirstFloor()
+        self.clear()
         self._buildCorners()
         self._walls()
         self._decorateInterior()

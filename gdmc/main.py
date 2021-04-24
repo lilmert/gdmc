@@ -42,8 +42,7 @@ area_builder.generatePlotFence()
 start_timer = time.process_time()
 print("Starting Terraforming")
 BUILDER.flattenArea()
-print(time.process_time() - start_timer)
-print("Done Terraforming")
+print("Time ", time.process_time() - start_timer)
 
 #update globals to reflect terraforming
 WORLD_SLICE     = WorldSlice(AREA.get())
@@ -54,8 +53,7 @@ BUILDER         = buildUtils.Builder(HEIGHT_MAP, AREA.get(), USE_BATCHING)
 start_timer = time.process_time()
 print("Starting Block Map Processing")
 BUILDER.generateBlockMap()
-print(time.process_time() - start_timer)
-print("Done Block Map Processing")
+print("Time ", time.process_time() - start_timer)
 
 ##################################################################
 ########################## TOWN SQUARE ###########################
@@ -69,9 +67,12 @@ town_square_f_map = generation.getFitnessMap(BUILD_MAP, town_square_size, 1, BUI
 town_centre_plots = generation.get_indices_of_k_smallest(town_square_f_map, town_square_pool_size)
 town_centre = structures.TownCentre(town_centre_plots[0], town_square_size, BUILDER)
 BUILD_MAP.addStructure(town_centre._x, town_centre._z, town_square_size)
+print("Time ", time.process_time() - start_timer)
+
+start_timer = time.process_time()
+print("Starting Central Roadway Generation")
 town_centre.buildPaths(BUILD_MAP)
-print(time.process_time() - start_timer)
-print("Ending town square generation")
+print("Time ", time.process_time() - start_timer)
 
 ##################################################################
 ######################## HOUSING #################################
@@ -81,25 +82,29 @@ start_timer = time.process_time()
 print("Starting housing generation")
 
 house_plot_size = 11
-housing_pool_size = 13
+housing_pool_size = 35
 housing_f_map = generation.getFitnessMap(BUILD_MAP, house_plot_size, 1.2, BUILDER, structures.housingFitness)
 housing_plots = generation.get_indices_of_k_smallest(housing_f_map, housing_pool_size)
 i = 0
 placed = 0
-while placed < 5:
+while placed < 10:
     if(BUILD_MAP.plotPermit(housing_plots[i][0], housing_plots[i][1], housing_pool_size)):
         BUILD_MAP.addStructure(housing_plots[i][0], housing_plots[i][1], house_plot_size)
         house = structures.House(housing_plots[i], house_plot_size, BUILDER, BUILD_MAP)
         placed += 1
     i += 1
 
-print(time.process_time() - start_timer)
+print("Time ", time.process_time() - start_timer)
 
+# placing block at start node of path finding (visual aid)
 indices = np.argwhere(BUILD_MAP.area_map > 2)
 for idx in indices:
     BUILDER.setBlockAt(idx[0], -1, idx[1], "iron_block")
 
+start_timer = time.process_time()
+print("Starting path finding for houses")
 pathfinding.createPaths(BUILD_MAP, BUILDER)
+print("Time ", time.process_time() - start_timer)
 
 # Order of generation and settlement
 
